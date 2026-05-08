@@ -10,10 +10,24 @@ const createBookingCon = async (req, res) => {
   try {
     const { id: house_id } = req.user
     const { bin_id, scheduled_date } = req.body
-    const data = await createBookingDb(house_id, bin_id, scheduled_date)
+
+    // fetch bin to get its type and calculate price
+    const bin = await getBinByIdDb(bin_id)
+    if (!bin) {
+      return res.status(404).json({ message: "Bin not found" })
+    }
+    if (bin.house_id !== house_id) {
+      return res.status(403).json({ message: "This is not your bin" })
+    }
+
+    const PRICES = { small: 50, medium: 100, large: 400 }
+    const price = PRICES[bin.bin_type]
+
+    const data = await createBookingDb(house_id, bin_id, scheduled_date, price)
     res.status(201).json({
       message: "Booking created — waiting for cleaners to apply",
-      booking_id: data.insertId
+      booking_id: data.insertId,
+      price: `R${price}`
     })
   } catch (error) {
     res.status(500).json({ error: error.message })

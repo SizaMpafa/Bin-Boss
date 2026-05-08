@@ -5,12 +5,18 @@ import {
 import { getHouseProfileDb } from "../models/houseDb.js"
 import { getAddressByIdDb } from "../models/addressDb.js"
 
+const PRICES = { small: 50, medium: 100, large: 400 }
+
 const registerBinCon = async (req, res) => {
   try {
     const { id: house_id } = req.user
-    const { photo } = req.body
+    const { photo, bin_type } = req.body
 
-    // fetch house + address to build the bin code
+    // validate bin_type
+    if (!bin_type || !PRICES[bin_type]) {
+      return res.status(400).json({ message: "bin_type must be small, medium or large" })
+    }
+
     const house = await getHouseProfileDb(house_id)
     if (!house) {
       return res.status(404).json({ message: "House profile not found" })
@@ -31,11 +37,13 @@ const registerBinCon = async (req, res) => {
       address.house_number
     )
 
-    const data = await registerBinDb(bin_code, house_id, photo)
+    const data = await registerBinDb(bin_code, house_id, photo, bin_type)
     res.status(201).json({
       message: "Bin registered successfully",
       bin_id: data.insertId,
-      bin_code
+      bin_code,
+      bin_type,
+      price: `R${PRICES[bin_type]}`
     })
   } catch (error) {
     res.status(500).json({ error: error.message })
