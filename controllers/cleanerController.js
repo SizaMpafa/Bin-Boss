@@ -24,7 +24,13 @@ const registerCleanerCon = async (req, res) => {
     if (error.code === "ER_DUP_ENTRY") {
       return res.status(400).json({ message: "Email already exists" })
     }
-    res.status(500).json({ error: error.message })
+    console.error(error)
+
+    res.status(500).json({
+      message: error.message,
+      code: error.code,
+      sqlMessage: error.sqlMessage
+    })
   }
 }
 
