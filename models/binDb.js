@@ -16,11 +16,11 @@ const generateBinCode = async (first_name, last_name, street_name, house_number)
   return count === 0 ? base : `${base}_${count + 1}`
 }
 
-const registerBinDb = async (bin_code, house_id, photo) => {
+const registerBinDb = async (bin_code, house_id, photo, bin_type) => {
   const [data] = await pool.query(
-    `INSERT INTO bin (bin_code, house_id, photo, status)
-     VALUES (?, ?, ?, 'not_collected')`,
-    [bin_code, house_id, photo || null]
+    `INSERT INTO bin (bin_code, house_id, photo, status, bin_type)
+     VALUES (?, ?, ?, 'not_collected', ?)`,
+    [bin_code, house_id, photo || null, bin_type]
   )
   return data
 }

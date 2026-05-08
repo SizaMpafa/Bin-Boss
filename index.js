@@ -1,5 +1,6 @@
 import express from "express"
 import cors from "cors"
+import 'dotenv/config'
 import houseRoutes from "./routes/houseRoutes.js"
 import cleanerRoutes from "./routes/cleanerRoutes.js"
 import addressRoutes from "./routes/addressRoutes.js"

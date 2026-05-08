@@ -1,10 +1,10 @@
 import { pool } from "../config/config.js"
 
-const createBookingDb = async (house_id, bin_id, scheduled_date) => {
+const createBookingDb = async (house_id, bin_id, scheduled_date, price) => {
   const [data] = await pool.query(
-    `INSERT INTO booking (house_id, bin_id, scheduled_date, status)
-     VALUES (?, ?, ?, 'open')`,
-    [house_id, bin_id, scheduled_date]
+    `INSERT INTO booking (house_id, bin_id, scheduled_date, status, price)
+     VALUES (?, ?, ?, 'open', ?)`,
+    [house_id, bin_id, scheduled_date, price]
   )
   return data
 }
