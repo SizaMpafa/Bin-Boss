@@ -1,21 +1,31 @@
 import { registerHouseDb, loginHouseDb, getHouseProfileDb, updateHouseDb } from "../models/houseDb.js"
+import { createAddressDb } from "../models/addressDb.js" // add this import
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 
 const registerHouseCon = async (req, res) => {
   try {
-    const { first_name, last_name, email, contact, address_id, password, photo } = req.body
+    const {
+      first_name, last_name, email, contact, password, photo,
+      house_number, street_name, place, postal_code  // address fields come in here too
+    } = req.body
 
-    // address is mandatory
-    if (!address_id) {
+    // validate all required fields
+    if (!house_number || !street_name || !place || !postal_code) {
       return res.status(400).json({ message: "Address is required" })
     }
 
+    // create address first — backend handles this, frontend doesn't know
+    const addressData = await createAddressDb(house_number, street_name, place, postal_code)
+    const address_id = addressData.insertId
+
+    // then create house with the new address_id
     const hashedPassword = await bcrypt.hash(password, 10)
     await registerHouseDb(
       first_name, last_name, email, contact,
       address_id, hashedPassword, photo
     )
+
     res.status(201).json({ message: "House owner registered successfully" })
   } catch (error) {
     if (error.code === "ER_DUP_ENTRY") {
@@ -25,6 +35,7 @@ const registerHouseCon = async (req, res) => {
   }
 }
 
+// rest of the controllers stay exactly the same
 const loginHouseCon = async (req, res) => {
   try {
     const { email, password } = req.body
